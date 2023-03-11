@@ -7,7 +7,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace NetShare
 {
@@ -15,8 +17,9 @@ namespace NetShare
     {
         private About _userControlAbout;
         private AddShare _userControlAddShare;
-
+        private Loading _userControlLoading;
         private List<ShareItem> _shares = new List<ShareItem>();
+        private Dialog _loadingWindow;
 
         public Main()
         {
@@ -28,13 +31,15 @@ namespace NetShare
             InitializeUserControllers();
             Helper.ApplicationName = typeof(Program).Assembly.GetName().Name;
             PopulateListViewFromConfig();
-    }
+
+            MountDrives();
+        }
 
         private void InitializeUserControllers()
         {
-            //UserControllers
             _userControlAbout = new About();
             _userControlAddShare = new AddShare();
+            _userControlLoading = new Loading();
         }
 
         private void PopulateListViewFromConfig()
@@ -59,6 +64,14 @@ namespace NetShare
             }
         }
 
+        private void MountDrives()
+        {
+            foreach (ListViewItem item in listViewShares.Items)
+            {
+                MountDrive((ShareItem)item.Tag, item);
+            }
+        }
+
         private void SetupListView()
         {
             listViewShares.View = View.Details;
@@ -68,7 +81,7 @@ namespace NetShare
         {
             listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Drive.GetName(), Text = "Drive letter", Width = 100, TextAlign = HorizontalAlignment.Left});
             listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Server.GetName(), Text = "Server adress", Width = 100, TextAlign = HorizontalAlignment.Left });
-            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Catalog.GetName(), Text = "Katalog", Width = 100, TextAlign = HorizontalAlignment.Left });
+            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Catalog.GetName(), Text = "Catalog", Width = 100, TextAlign = HorizontalAlignment.Left });
             listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Status.GetName(), Text = "Status", Width = 400, TextAlign = HorizontalAlignment.Left });
         }
 
@@ -179,25 +192,76 @@ namespace NetShare
             var shareItem = (ShareItem)selectedItem.Tag;
             var status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, shareItem.Password);
 
-            if (status != 0)
-            {
-                string errorMessage = new System.ComponentModel.Win32Exception(status).Message;
-                shareItem.Status = MapStatus.notMapped;
+            MountDrive(shareItem, selectedItem);
+        }
 
-                selectedItem.UpdateListViewItem(TableColumns.Status, errorMessage);
+        private void MountDrive(ShareItem shareItem, ListViewItem listViewItem)
+        {
+            _loadingWindow = new Dialog();
+            _loadingWindow.ControlBox = false;
+            
+            _loadingWindow.Controls.Clear();
+            _loadingWindow.Controls.Add(_userControlLoading);
+            _loadingWindow.Show(this);
 
-                return;
-            }
-            else
-            {
-                selectedItem.UpdateListViewItem(TableColumns.Status, "Mapped successfully");
-                shareItem.Status = MapStatus.mapped;
-            }
+
+
+            string statusMessage = string.Empty;
+
+            var container = new Container();
+            container.ShareItem = shareItem;
+            container.Item = listViewItem;
+            container.Item.UpdateListViewItem(TableColumns.Status, "Trying to mount drive...");
+
+            //backgroundWorker1.RunWorkerAsync(container);
+
+
+            //var status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, shareItem.Password);
+
+            //var status = task.Result;
+
+            //shareItem.Status = MountStatus.mapped;
+            //statusMessage = "Mapped successfully";
+            //listViewItem.UpdateListViewItem(TableColumns.Status, statusMessage);
+
+            //if (status == 0) return; //Mount Succeded
+
+            //statusMessage = new System.ComponentModel.Win32Exception(status).Message;
+            //shareItem.Status = MountStatus.notMapped;
+            //listViewItem.UpdateListViewItem(TableColumns.Status, statusMessage);
+
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveListViewToConfig();
+        }
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            var container = (Container)e.Argument;
+            var shareItem = container.ShareItem;
+
+            container.Status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, shareItem.Password);
+
+            e.Result = container;
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            _loadingWindow.Close();
+            _loadingWindow.Dispose();
+
+            var container = (Container)e.Result;
+
+            container.ShareItem.Status = MountStatus.mapped;
+            container.Item.UpdateListViewItem(TableColumns.Status, "Mapped successfully");
+
+            if (container.Status == 0) return;
+
+            var statusMessage = new System.ComponentModel.Win32Exception(container.Status).Message;
+            container.ShareItem.Status = MountStatus.notMapped;
+            container.Item.UpdateListViewItem(TableColumns.Status, statusMessage);
         }
     }
 
@@ -209,6 +273,12 @@ namespace NetShare
         Status
     }
 
+    public class Container
+    {
+        public ShareItem ShareItem { get; set; }
+        public ListViewItem Item { get; set; }
+        public int Status { get; set; }
+    }
     public static class EnumExtension
     {
         public static string GetName(this TableColumns tableEnum)
