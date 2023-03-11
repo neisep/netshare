@@ -22,10 +22,10 @@ namespace Domain
                 _password = AESGCM.SimpleEncrypt(value, AESGCM.NewKey());
             }
         }
-        public MapStatus Status { get; set; }
+        public MountStatus Status { get; set; }
     }
 
-    public enum MapStatus
+    public enum MountStatus
     {
         notMapped,
         mapped,
