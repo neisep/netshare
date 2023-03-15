@@ -15,5 +15,7 @@ namespace Infrastracture
         public static string SharesConfigWithPathAndFileName => $@"{AppConfigPath}\{SharesConfigFileName}";
 
         public static List<string> GetUnusedDriveLetters => Enumerable.Range('A', 'Z' - 'A' + 1).Select(i => (Char) i + ":").Except(DriveInfo.GetDrives().Select(x => x.Name.Replace("\\", ""))).ToList();
+
+        public static byte[] Key { get; set; }
     }
 }

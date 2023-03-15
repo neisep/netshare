@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Encryption.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="KeyFile.cs" />
     <Compile Include="NetworkDrive.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
