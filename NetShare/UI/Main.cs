@@ -1,6 +1,7 @@
 ﻿//Source is still under going development and is abit messy right now.
 using Domain;
 using Infrastracture;
+using Infrastracture.Encryption;
 using NetShare.UI;
 using NetShare.UI.UserControls;
 using Newtonsoft.Json;
@@ -8,9 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Threading;
 
 namespace NetShare
 {
@@ -28,12 +27,19 @@ namespace NetShare
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            SetupKeyFile();
             SetupListView();
             InitializeUserControllers();
             Helper.ApplicationName = typeof(Program).Assembly.GetName().Name;
             PopulateListViewFromConfig();
 
-            MountDrives();
+            //MountDrives();
+        }
+
+        private void SetupKeyFile()
+        {
+            var keyfile = new KeyFile();
+            Helper.Key = keyfile.CreateNew();
         }
 
         private void InitializeUserControllers()
@@ -110,11 +116,6 @@ namespace NetShare
             }
         }
 
-        private void CheckDuplicates()
-        {
-            //if (listViewShares.)
-        }
-
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (var dialogWindow = new Dialog())
@@ -140,7 +141,8 @@ namespace NetShare
                 return;
 
             var selectedItem = listViewShares.SelectedItems[0];
-            ShowDialogAddShare((ShareItem)selectedItem.Tag);
+            if(!ShowDialogAddShare((ShareItem)selectedItem.Tag)) 
+                return;
             listViewShares.Items.Remove(selectedItem);
             SaveListViewToConfig();
         }
@@ -162,7 +164,7 @@ namespace NetShare
             SaveListViewToConfig();
         }
 
-        private void ShowDialogAddShare(ShareItem editShareItem)
+        private bool ShowDialogAddShare(ShareItem editShareItem)
         {
             using (var dialogWindow = new Dialog())
             {
@@ -179,8 +181,11 @@ namespace NetShare
 
                 var shareItem = (ShareItem)dialogWindow.ResultObject;
 
-                if (shareItem != null)
-                    AddRow(shareItem);
+                if (shareItem == null)
+                    return false;
+
+                AddRow(shareItem);
+                return true;
             }
         }
 
@@ -191,7 +196,6 @@ namespace NetShare
 
             var selectedItem = listViewShares.SelectedItems[0];
             var shareItem = (ShareItem)selectedItem.Tag;
-            var status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, shareItem.Password);
 
             MountDrive(shareItem, selectedItem);
         }
@@ -215,7 +219,7 @@ namespace NetShare
             if (!Helper.GetUnusedDriveLetters.Any(x => x == shareItem.DriveLetter))
                 return;
 
-            //backgroundWorker1.RunWorkerAsync(container);
+            backgroundWorker1.RunWorkerAsync(container);
 
 
             //var status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, shareItem.Password);
@@ -236,6 +240,12 @@ namespace NetShare
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (backgroundWorker1.IsBusy)
+            {
+                e.Cancel = true;
+                return;
+            }
+                
             SaveListViewToConfig();
         }
 
@@ -244,20 +254,19 @@ namespace NetShare
             var container = (Container)e.Argument;
             var shareItem = container.ShareItem;
 
-            container.Status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, shareItem.Password);
+            container.Status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, AESGCM.SimpleDecrypt(shareItem.Password, Helper.Key));
 
-            e.Result = container;
+           e.Result = container;
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             _loadingWindow.Close();
-            _loadingWindow.Dispose();
 
             var container = (Container)e.Result;
 
             container.ShareItem.Status = MountStatus.mapped;
-            container.Item.UpdateListViewItem(TableColumns.Status, "Mapped successfully");
+            container.Item.UpdateListViewItem(TableColumns.Status, "Mount successfully");
 
             if (container.Status == 0) return;
 

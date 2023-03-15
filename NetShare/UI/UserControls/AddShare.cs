@@ -1,5 +1,6 @@
 ﻿using Domain;
 using Infrastracture;
+using Infrastracture.Encryption;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -30,12 +31,18 @@ namespace NetShare.UI.UserControls
 
         private void LoadExisting()
         {
+            txtServer.Text = string.Empty;
+            txtUsername.Text = string.Empty;
+            txtPassword.Text = string.Empty;
+            txtCatalog.Text = string.Empty;
+            cboDriveLetter.SelectedIndex = 0;
+
             if (ShareItemEdit == null)
                 return;
 
             txtServer.Text = ShareItemEdit.Server;
             txtUsername.Text = ShareItemEdit.UserName;
-            txtPassword.Text = ShareItemEdit.Password;
+            txtPassword.Text = AESGCM.SimpleDecrypt(ShareItemEdit.Password, Helper.Key);
             txtCatalog.Text = ShareItemEdit.Catalog;
             var index = cboDriveLetter.FindString(ShareItemEdit.DriveLetter);
             cboDriveLetter.SelectedIndex = index;
@@ -56,7 +63,7 @@ namespace NetShare.UI.UserControls
                 Server = txtServer.Text,
                 Catalog = txtCatalog.Text,
                 UserName = txtUsername.Text,
-                Password = txtPassword.Text
+                Password = AESGCM.SimpleEncrypt(txtPassword.Text, Helper.Key)
             };
             CallerForm.ResultObject = item;
 
