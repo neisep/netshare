@@ -1,5 +1,6 @@
 ﻿// from http://pinvoke.net/default.aspx/mpr/WNetAddConnection2.html
 // https://stackoverflow.com/questions/55634990/a-way-to-map-network-location-on-c
+// https://stackoverflow.com/users/1911064/axel-kemper
 using System;
 using System.Runtime.InteropServices;
 
