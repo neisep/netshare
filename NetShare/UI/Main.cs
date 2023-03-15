@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
@@ -204,14 +205,15 @@ namespace NetShare
             _loadingWindow.Controls.Add(_userControlLoading);
             _loadingWindow.Show(this);
 
-
-
             string statusMessage = string.Empty;
 
             var container = new Container();
             container.ShareItem = shareItem;
             container.Item = listViewItem;
             container.Item.UpdateListViewItem(TableColumns.Status, "Trying to mount drive...");
+
+            if (!Helper.GetUnusedDriveLetters.Any(x => x == shareItem.DriveLetter))
+                return;
 
             //backgroundWorker1.RunWorkerAsync(container);
 

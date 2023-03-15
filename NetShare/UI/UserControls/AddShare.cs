@@ -1,9 +1,7 @@
 ﻿using Domain;
+using Infrastracture;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace NetShare.UI.UserControls
@@ -20,7 +18,7 @@ namespace NetShare.UI.UserControls
 
         private void AddShare_Load(object sender, EventArgs e)
         {
-            foreach (var item in GetUnusedDriveLetters())
+            foreach (var item in Helper.GetUnusedDriveLetters)
             {
                 cboDriveLetter.Items.Add(item);
             }
@@ -41,11 +39,6 @@ namespace NetShare.UI.UserControls
             txtCatalog.Text = ShareItemEdit.Catalog;
             var index = cboDriveLetter.FindString(ShareItemEdit.DriveLetter);
             cboDriveLetter.SelectedIndex = index;
-        }
-
-        private List<string> GetUnusedDriveLetters()
-        {
-            return Enumerable.Range('A', 'Z' - 'A' + 1).Select(i => (Char)i + ":").Except(DriveInfo.GetDrives().Select(x => x.Name.Replace("\\", ""))).ToList();
         }
 
         private void btnSave_Click(object sender, EventArgs e)
