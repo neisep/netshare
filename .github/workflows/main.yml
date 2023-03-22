@@ -34,3 +34,9 @@ jobs:
         
 #      - name: Run Tests
 #        run: vstest.console.exe .\tests\Sandbox.Tests\bin\Release\Sandbox.Tests.dll
+      - name: Archive Release
+        uses: thedoctor0/zip-release@0.7.1
+        with:
+          type: 'zip'
+          filename: 'netshare.zip'
+          exclusions: '*.git* /*node_modules/* .editorconfig'
