@@ -34,9 +34,19 @@ jobs:
         
 #      - name: Run Tests
 #        run: vstest.console.exe .\tests\Sandbox.Tests\bin\Release\Sandbox.Tests.dll
+
+      - name: Navigate to Release dir
+        run: cd netshare\bin\release
+        
       - name: Archive Release
         uses: thedoctor0/zip-release@0.7.1
         with:
           type: 'zip'
           filename: 'netshare.zip'
           exclusions: '*.git* /*node_modules/* .editorconfig'
+          
+      - name: Upload Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          artifacts: "netshare.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
