@@ -1,3 +1,5 @@
+[![Build NetShare](https://github.com/neisep/netshare/actions/workflows/main.yml/badge.svg)](https://github.com/neisep/netshare/actions/workflows/main.yml)
+
 # netshare
 GUI for holding smb shares just for experiment with .net
 
