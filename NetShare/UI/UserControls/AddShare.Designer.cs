@@ -161,7 +161,7 @@ namespace NetShare.UI.UserControls
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtServer);
             this.Name = "AddShare";
-            this.Size = new System.Drawing.Size(479, 273);
+            this.Size = new System.Drawing.Size(479, 239);
             this.Load += new System.EventHandler(this.AddShare_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

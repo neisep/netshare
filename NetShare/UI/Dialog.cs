@@ -21,8 +21,8 @@ namespace NetShare.UI
                     var userControl = (UserControl)item;
                     Text = $"{userControl.Name} {Helper.ApplicationName}";
 
-                    this.Width = userControl.Width;
-                    this.Height = userControl.Height;
+                    this.Width = userControl.Width + 25;
+                    this.Height = userControl.Height + 50;
                 }
             }
 

@@ -18,6 +18,7 @@ namespace NetShare
         private About _userControlAbout;
         private AddShare _userControlAddShare;
         private Loading _userControlLoading;
+        private Options _userControlOptions;
         private List<ShareItem> _shares = new List<ShareItem>();
         private Dialog _loadingWindow;
 
@@ -47,6 +48,7 @@ namespace NetShare
             _userControlAbout = new About();
             _userControlAddShare = new AddShare();
             _userControlLoading = new Loading();
+            _userControlOptions = new Options();
         }
 
         private void PopulateListViewFromConfig()
@@ -261,6 +263,7 @@ namespace NetShare
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
+            _loadingWindow.Controls.Clear();
             _loadingWindow.Close();
 
             var container = (Container)e.Result;
@@ -273,6 +276,19 @@ namespace NetShare
             var statusMessage = new System.ComponentModel.Win32Exception(container.Status).Message;
             container.ShareItem.Status = MountStatus.notMapped;
             container.Item.UpdateListViewItem(TableColumns.Status, statusMessage);
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var dialogWindow = new Dialog())
+            {
+                _userControlOptions.CallerForm = dialogWindow;
+                dialogWindow.Controls.Clear();
+                dialogWindow.Controls.Add(_userControlOptions);
+
+                dialogWindow.ShowDialog(this);
+                dialogWindow.Controls.Clear();
+            }
         }
     }
 
