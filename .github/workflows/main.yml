@@ -49,3 +49,9 @@ jobs:
           filename: 'netshare.zip'
           path: '${{github.workspace}}\netshare\bin\release'
           exclusions: '*.git* /*node_modules/* .editorconfig'
+          
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: netshare.zip
