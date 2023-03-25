@@ -43,10 +43,5 @@ jobs:
         with:
           type: 'zip'
           filename: 'netshare.zip'
+          path: '$GITHUB_WORKSPACE\netshare\bin\release'
           exclusions: '*.git* /*node_modules/* .editorconfig'
-          
-      - name: Upload Release
-        uses: ncipollo/release-action@v1.12.0
-        with:
-          artifacts: "netshare.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
