@@ -25,6 +25,10 @@ jobs:
       - name: Navigate to Workspace
         run: cd $GITHUB_WORKSPACE
 
+      - name: Echo Workspace
+        run: echo $GITHUB_WORKSPACE
+
+
       - name: Restore Packages
         run: nuget restore NetShare.sln
 
@@ -43,5 +47,5 @@ jobs:
         with:
           type: 'zip'
           filename: 'netshare.zip'
-          path: '$GITHUB_WORKSPACE\netshare\bin\release'
+          path: '${{github.workspace}}\netshare\bin\release'
           exclusions: '*.git* /*node_modules/* .editorconfig'
