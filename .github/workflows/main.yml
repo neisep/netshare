@@ -1,5 +1,8 @@
 name: Build NetShare
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
