@@ -61,6 +61,7 @@
     <Compile Include="UI\Dialog.Designer.cs">
       <DependentUpon>Dialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\ListViewExtention.cs" />
     <Compile Include="UI\Main.cs">
       <SubType>Form</SubType>
     </Compile>

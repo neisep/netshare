@@ -21,6 +21,9 @@ namespace NetShare.UI.UserControls
         {
             foreach (var item in Helper.GetUnusedDriveLetters)
             {
+                if (ExcludedDriveLetters.Contains(item.ToLower()))
+                    continue;
+
                 cboDriveLetter.Items.Add(item);
             }
 

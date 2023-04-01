@@ -37,10 +37,25 @@ namespace NetShare
             //MountDrives();
         }
 
+        #region Setup At Startup
         private void SetupKeyFile()
         {
             var keyfile = new KeyFile();
             Helper.Key = keyfile.CreateNew();
+        }
+
+        private void SetupListView()
+        {
+            listViewShares.View = View.Details;
+            AddListViewColumns();
+        }
+
+        private void AddListViewColumns()
+        {
+            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Drive.GetName(), Text = "Drive letter", Width = 100, TextAlign = HorizontalAlignment.Left });
+            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Server.GetName(), Text = "Server adress", Width = 100, TextAlign = HorizontalAlignment.Left });
+            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Catalog.GetName(), Text = "Catalog", Width = 100, TextAlign = HorizontalAlignment.Left });
+            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Status.GetName(), Text = "Status", Width = 400, TextAlign = HorizontalAlignment.Left });
         }
 
         private void InitializeUserControllers()
@@ -73,25 +88,98 @@ namespace NetShare
             }
         }
 
+        #endregion
+
+        #region GUI Events
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var dialogWindow = new Dialog())
+            {
+                dialogWindow.Open(_userControlAbout);
+            }
+        }
+
+        private void AddToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenDialogAddShare(null);
+            SaveListViewToConfig();
+        }
+
+        private void changeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listViewShares.SelectedItems.Count == 0)
+                return;
+
+            var selectedItem = listViewShares.SelectedItems[0];
+            if (!OpenDialogAddShare((ShareItem)selectedItem.Tag))
+                return;
+            listViewShares.Items.Remove(selectedItem);
+            SaveListViewToConfig();
+        }
+
+        private void removeToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (listViewShares.SelectedItems.Count == 0)
+                return;
+
+            var selectedItem = listViewShares.SelectedItems[0];
+            listViewShares.Items.Remove(selectedItem);
+
+            SaveListViewToConfig();
+        }
+
+        private void addToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            OpenDialogAddShare(null);
+            SaveListViewToConfig();
+        }
+
+        private void mapToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listViewShares.SelectedItems.Count == 0)
+                return;
+            SetEnableOrDisableControls();
+
+            var selectedItem = listViewShares.SelectedItems[0];
+            var shareItem = (ShareItem)selectedItem.Tag;
+
+            MountDrive(shareItem, selectedItem);
+        }
+
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (backgroundWorker1.IsBusy)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            SaveListViewToConfig();
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var dialogWindow = new Dialog())
+            {
+                _userControlOptions.CallerForm = dialogWindow;
+                dialogWindow.Controls.Clear();
+                dialogWindow.Controls.Add(_userControlOptions);
+
+                dialogWindow.ShowDialog(this);
+                dialogWindow.Controls.Clear();
+            }
+        }
+
+        #endregion
+
         private void MountDrives()
         {
+            SetEnableOrDisableControls();
             foreach (ListViewItem item in listViewShares.Items)
             {
                 MountDrive((ShareItem)item.Tag, item);
             }
-        }
-
-        private void SetupListView()
-        {
-            listViewShares.View = View.Details;
-            AddListViewColumns();
-        }
-        private void AddListViewColumns()
-        {
-            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Drive.GetName(), Text = "Drive letter", Width = 100, TextAlign = HorizontalAlignment.Left});
-            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Server.GetName(), Text = "Server adress", Width = 100, TextAlign = HorizontalAlignment.Left });
-            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Catalog.GetName(), Text = "Catalog", Width = 100, TextAlign = HorizontalAlignment.Left });
-            listViewShares.Columns.Add(new ColumnHeader { Name = TableColumns.Status.GetName(), Text = "Status", Width = 400, TextAlign = HorizontalAlignment.Left });
         }
 
         private void AddRow(ShareItem entity)
@@ -118,89 +206,17 @@ namespace NetShare
             }
         }
 
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        private bool OpenDialogAddShare(ShareItem editShareItem)
         {
             using (var dialogWindow = new Dialog())
             {
-                
-                dialogWindow.Controls.Clear();
-                dialogWindow.Controls.Add(_userControlAbout);
-
-                dialogWindow.ShowDialog(this);
-                dialogWindow.Controls.Clear();
-            }
-        }
-
-        private void AddToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ShowDialogAddShare(null);
-            SaveListViewToConfig();
-        }
-
-        private void changeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (listViewShares.SelectedItems.Count == 0)
-                return;
-
-            var selectedItem = listViewShares.SelectedItems[0];
-            if(!ShowDialogAddShare((ShareItem)selectedItem.Tag)) 
-                return;
-            listViewShares.Items.Remove(selectedItem);
-            SaveListViewToConfig();
-        }
-
-        private void removeToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            if (listViewShares.SelectedItems.Count == 0)
-                return;
-
-            var selectedItem = listViewShares.SelectedItems[0];
-            listViewShares.Items.Remove(selectedItem);
-
-            SaveListViewToConfig();
-        }
-
-        private void addToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            ShowDialogAddShare(null);
-            SaveListViewToConfig();
-        }
-
-        private bool ShowDialogAddShare(ShareItem editShareItem)
-        {
-            using (var dialogWindow = new Dialog())
-            {
-                _userControlAddShare.CallerForm = dialogWindow;
-                
-                if(editShareItem != null)
-                    _userControlAddShare.ShareItemEdit = editShareItem;
-
-                dialogWindow.Controls.Clear();
-                dialogWindow.Controls.Add(_userControlAddShare);
-
-                dialogWindow.ShowDialog(this);
-                dialogWindow.Controls.Clear();
-
-                var shareItem = (ShareItem)dialogWindow.ResultObject;
-
+                var shareItem = dialogWindow.OpenAddShare(editShareItem, _userControlAddShare, _shares.Select(x => x.DriveLetter.ToLower()).ToList());
                 if (shareItem == null)
-                    return false;
-
+                    return false; 
+               
                 AddRow(shareItem);
                 return true;
             }
-        }
-
-        private void mapToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (listViewShares.SelectedItems.Count == 0)
-                return;
-            SetEnableOrDisableControls();
-
-            var selectedItem = listViewShares.SelectedItems[0];
-            var shareItem = (ShareItem)selectedItem.Tag;
-
-            MountDrive(shareItem, selectedItem);
         }
 
         private void MountDrive(ShareItem shareItem, ListViewItem listViewItem)
@@ -223,34 +239,9 @@ namespace NetShare
                 return;
 
             backgroundWorker1.RunWorkerAsync(container);
-
-
-            //var status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, shareItem.Password);
-
-            //var status = task.Result;
-
-            //shareItem.Status = MountStatus.mapped;
-            //statusMessage = "Mapped successfully";
-            //listViewItem.UpdateListViewItem(TableColumns.Status, statusMessage);
-
-            //if (status == 0) return; //Mount Succeded
-
-            //statusMessage = new System.ComponentModel.Win32Exception(status).Message;
-            //shareItem.Status = MountStatus.notMapped;
-            //listViewItem.UpdateListViewItem(TableColumns.Status, statusMessage);
-
         }
 
-        private void Main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (backgroundWorker1.IsBusy)
-            {
-                e.Cancel = true;
-                return;
-            }
-                
-            SaveListViewToConfig();
-        }
+        #region BackgroundWorker
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
@@ -266,6 +257,7 @@ namespace NetShare
         {
             _loadingWindow.Controls.Clear();
             _loadingWindow.Close();
+            _loadingWindow.Dispose();
 
             var container = (Container)e.Result;
 
@@ -281,18 +273,7 @@ namespace NetShare
             SetEnableOrDisableControls();
         }
 
-        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (var dialogWindow = new Dialog())
-            {
-                _userControlOptions.CallerForm = dialogWindow;
-                dialogWindow.Controls.Clear();
-                dialogWindow.Controls.Add(_userControlOptions);
-
-                dialogWindow.ShowDialog(this);
-                dialogWindow.Controls.Clear();
-            }
-        }
+        #endregion
 
         private void SetEnableOrDisableControls()
         {
@@ -322,29 +303,5 @@ namespace NetShare
         public ShareItem ShareItem { get; set; }
         public ListViewItem Item { get; set; }
         public int Status { get; set; }
-    }
-    public static class EnumExtension
-    {
-        public static string GetName(this TableColumns tableEnum)
-        {
-            return tableEnum.ToString().ToLower();
-        }
-    }
-    public static class ListViewExtention
-    {
-        public static void UpdateListViewItem(this ListViewItem listViewItem, TableColumns column, string text)
-        {
-            var matchIndex = -1;
-            foreach (ColumnHeader item in listViewItem.ListView.Columns)
-            {
-                if (item.Name == column.GetName())
-                    matchIndex = item.Index;
-            }
-
-            if (matchIndex == 0)
-                listViewItem.Text = text;
-
-            listViewItem.SubItems[matchIndex].Text = text;
-        }
     }
 }
