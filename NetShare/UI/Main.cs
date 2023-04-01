@@ -195,6 +195,7 @@ namespace NetShare
         {
             if (listViewShares.SelectedItems.Count == 0)
                 return;
+            SetEnableOrDisableControls();
 
             var selectedItem = listViewShares.SelectedItems[0];
             var shareItem = (ShareItem)selectedItem.Tag;
@@ -276,6 +277,8 @@ namespace NetShare
             var statusMessage = new System.ComponentModel.Win32Exception(container.Status).Message;
             container.ShareItem.Status = MountStatus.notMapped;
             container.Item.UpdateListViewItem(TableColumns.Status, statusMessage);
+
+            SetEnableOrDisableControls();
         }
 
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -288,6 +291,20 @@ namespace NetShare
 
                 dialogWindow.ShowDialog(this);
                 dialogWindow.Controls.Clear();
+            }
+        }
+
+        private void SetEnableOrDisableControls()
+        {
+            if(menuStrip1.Enabled == true)
+            {
+                menuStrip1.Enabled = false;
+                contextMenuStrip1.Enabled = false;
+            }
+            else
+            {
+                menuStrip1.Enabled = true;
+                contextMenuStrip1.Enabled = true;
             }
         }
     }
