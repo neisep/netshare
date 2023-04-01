@@ -1,5 +1,8 @@
-﻿using Infrastracture;
+﻿using Domain;
+using Infrastracture;
+using NetShare.UI.UserControls;
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace NetShare.UI
@@ -27,6 +30,29 @@ namespace NetShare.UI
             }
 
             this.CenterToParent();
+        }
+
+        public void Open(UserControl userControl)
+        {
+            Controls.Clear();
+            Controls.Add(userControl);
+            this.ShowDialog();
+            Controls.Clear();
+        }
+
+        public ShareItem OpenAddShare(ShareItem editShareItem, AddShare userControl, List<string> excludedDriveLetter)
+        {
+            userControl.ExcludedDriveLetters = excludedDriveLetter;
+            userControl.CallerForm = this;
+            if (editShareItem != null)
+                userControl.ShareItemEdit = editShareItem;
+
+            this.Controls.Clear();
+            this.Controls.Add(userControl);
+            this.ShowDialog();
+            this.Controls.Clear();
+
+            return (ShareItem)ResultObject;
         }
     }
 }
