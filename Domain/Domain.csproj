@@ -45,11 +45,5 @@
     <Compile Include="ShareItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Infrastracture\Infrastracture.csproj">
-      <Project>{56db0554-ff1d-450b-90dc-75b74721113c}</Project>
-      <Name>Infrastracture</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

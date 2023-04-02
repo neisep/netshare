@@ -29,12 +29,19 @@ namespace NetShare
         private void Form1_Load(object sender, EventArgs e)
         {
             SetupKeyFile();
+            LoadApplicationOptions();
             SetupListView();
             InitializeUserControllers();
             Helper.ApplicationName = typeof(Program).Assembly.GetName().Name;
             PopulateListViewFromConfig();
 
             //MountDrives();
+
+            if(Helper.ApplicationOptions.OnStartupMinimizeToTray)
+            {
+                this.ShowInTaskbar = false;
+                Hide();
+            }            
         }
 
         #region Setup At Startup
@@ -147,17 +154,6 @@ namespace NetShare
             MountDrive(shareItem, selectedItem);
         }
 
-        private void Main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (backgroundWorker1.IsBusy)
-            {
-                e.Cancel = true;
-                return;
-            }
-
-            SaveListViewToConfig();
-        }
-
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (var dialogWindow = new Dialog())
@@ -169,6 +165,34 @@ namespace NetShare
                 dialogWindow.ShowDialog(this);
                 dialogWindow.Controls.Clear();
             }
+        }
+
+        //TrayIconMenu
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        //TrayIconMenu
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Minimized)
+                WindowState = FormWindowState.Normal;
+            
+            Show();
+            this.Activate();
+        }
+
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (backgroundWorker1.IsBusy)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            SaveListViewToConfig();
+            trayIcon.Visible = false;
         }
 
         #endregion
@@ -277,16 +301,22 @@ namespace NetShare
 
         private void SetEnableOrDisableControls()
         {
-            if(menuStrip1.Enabled == true)
+            if(menuStrip.Enabled == true)
             {
-                menuStrip1.Enabled = false;
-                contextMenuStrip1.Enabled = false;
+                menuStrip.Enabled = false;
+                contextMenuStrip.Enabled = false;
             }
             else
             {
-                menuStrip1.Enabled = true;
-                contextMenuStrip1.Enabled = true;
+                menuStrip.Enabled = true;
+                contextMenuStrip.Enabled = true;
             }
+        }
+
+        private void LoadApplicationOptions()
+        {
+            var settingsHandler = new SettingFileHandler();
+            Helper.ApplicationOptions = settingsHandler.Load();
         }
     }
 

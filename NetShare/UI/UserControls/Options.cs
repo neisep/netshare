@@ -1,12 +1,8 @@
-﻿using Infrastracture;
+﻿using Domain;
+using Infrastracture;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace NetShare.UI.UserControls
@@ -28,14 +24,41 @@ namespace NetShare.UI.UserControls
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            
-            //_settingsHandler.Save();
+            var options = new OptionsItem();
+            foreach (var item in Controls.OfType<CheckBox>().Where(x => x.Visible))
+            {
+                switch (item.Name)
+                {
+                    case "AutoMountOnStartUp":
+                        options.AutoMountOnStartUp = false;
+                        if (item.Checked)
+                            options.AutoMountOnStartUp = true;
+                        break;
+                    case "OnStartupMinimizeToTray":
+                        options.OnStartupMinimizeToTray = false;
+                        if (item.Checked)
+                            options.OnStartupMinimizeToTray = true;
+                        break;
+                }
+            }
+
+            Helper.ApplicationOptions = options;
+            _settingsHandler.Save(options);
+            CallerForm.Close();
         }
 
         private void Options_Load(object sender, EventArgs e)
         {
             _settingsHandler = new SettingFileHandler();
-            //_settingsHandler.Load();
+            var options = _settingsHandler.Load();
+
+            if (options.AutoMountOnStartUp)
+                AutoMountOnStartUp.Checked = true;
+
+            if (options.OnStartupMinimizeToTray)
+                OnStartupMinimizeToTray.Checked = true;
+
+            Helper.ApplicationOptions = options;
         }
     }
 }

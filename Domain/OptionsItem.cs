@@ -9,5 +9,6 @@ namespace Domain
     public class OptionsItem
     {
         public bool AutoMountOnStartUp { get; set; }
+        public bool OnStartupMinimizeToTray { get; set; }
     }
 }

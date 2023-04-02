@@ -31,7 +31,8 @@ namespace NetShare.UI.UserControls
         {
             this.BtnSave = new System.Windows.Forms.Button();
             this.BtnClose = new System.Windows.Forms.Button();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.AutoMountOnStartUp = new System.Windows.Forms.CheckBox();
+            this.OnStartupMinimizeToTray = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // BtnSave
@@ -54,21 +55,33 @@ namespace NetShare.UI.UserControls
             this.BtnClose.UseVisualStyleBackColor = true;
             this.BtnClose.Click += new System.EventHandler(this.BtnClose_Click);
             // 
-            // checkBox1
+            // AutoMountOnStartUp
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(16, 15);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(203, 17);
-            this.checkBox1.TabIndex = 2;
-            this.checkBox1.Text = "automatically mount shares on startup";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.AutoMountOnStartUp.AutoSize = true;
+            this.AutoMountOnStartUp.Location = new System.Drawing.Point(16, 15);
+            this.AutoMountOnStartUp.Name = "AutoMountOnStartUp";
+            this.AutoMountOnStartUp.Size = new System.Drawing.Size(203, 17);
+            this.AutoMountOnStartUp.TabIndex = 2;
+            this.AutoMountOnStartUp.Text = "automatically mount shares on startup";
+            this.AutoMountOnStartUp.UseVisualStyleBackColor = true;
+            this.AutoMountOnStartUp.Visible = false;
+            // 
+            // OnStartupMinimizeToTray
+            // 
+            this.OnStartupMinimizeToTray.AutoSize = true;
+            this.OnStartupMinimizeToTray.Location = new System.Drawing.Point(16, 38);
+            this.OnStartupMinimizeToTray.Name = "OnStartupMinimizeToTray";
+            this.OnStartupMinimizeToTray.Size = new System.Drawing.Size(242, 17);
+            this.OnStartupMinimizeToTray.TabIndex = 3;
+            this.OnStartupMinimizeToTray.Text = "On startup minimize to tray icon (needs restart)";
+            this.OnStartupMinimizeToTray.UseVisualStyleBackColor = true;
             // 
             // Options
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.OnStartupMinimizeToTray);
+            this.Controls.Add(this.AutoMountOnStartUp);
             this.Controls.Add(this.BtnClose);
             this.Controls.Add(this.BtnSave);
             this.Name = "Options";
@@ -83,6 +96,7 @@ namespace NetShare.UI.UserControls
 
         private System.Windows.Forms.Button BtnSave;
         private System.Windows.Forms.Button BtnClose;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox AutoMountOnStartUp;
+        private System.Windows.Forms.CheckBox OnStartupMinimizeToTray;
     }
 }
