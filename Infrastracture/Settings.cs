@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Domain;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,15 +11,15 @@ namespace Infrastracture
 {
     public class SettingFileHandler
     {
-        public void Save<T>(T jsonObject)
+        public void Save(OptionsItem jsonObject)
         {
-            var dummy = JsonConvert.SerializeObject(jsonObject);
-            //File.WriteAllBytes();
+            File.WriteAllText(Helper.OptionsWithPathAndFileName, JsonConvert.SerializeObject(jsonObject));
         }
 
-        public void Load<T>()
+        public OptionsItem Load()
         {
-
+            var jsonObject = File.ReadAllText(Helper.OptionsWithPathAndFileName);
+            return JsonConvert.DeserializeObject<OptionsItem>(jsonObject);
         }
     }
 }
