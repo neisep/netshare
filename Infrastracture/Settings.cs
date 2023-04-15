@@ -1,25 +1,20 @@
 ﻿using Domain;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastracture
 {
     public class SettingFileHandler
     {
-        public void Save(OptionsItem jsonObject)
+        public void Save(SettingsItem jsonObject)
         {
             File.WriteAllText(Helper.OptionsWithPathAndFileName, JsonConvert.SerializeObject(jsonObject));
         }
 
-        public OptionsItem Load()
+        public SettingsItem Load()
         {
             var jsonObject = File.ReadAllText(Helper.OptionsWithPathAndFileName);
-            return JsonConvert.DeserializeObject<OptionsItem>(jsonObject);
+            return JsonConvert.DeserializeObject<SettingsItem>(jsonObject);
         }
     }
 }

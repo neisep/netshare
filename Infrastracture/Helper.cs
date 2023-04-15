@@ -19,7 +19,7 @@ namespace Infrastracture
 
         public static List<string> GetUnusedDriveLetters => Enumerable.Range('A', 'Z' - 'A' + 1).Select(i => (Char) i + ":").Except(DriveInfo.GetDrives().Select(x => x.Name.Replace("\\", ""))).ToList();
 
-        public static OptionsItem ApplicationOptions { get; set; }
+        public static SettingsItem ApplicationOptions { get; set; }
 
         public static byte[] Key { get; set; }
     }

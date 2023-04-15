@@ -1,7 +1,7 @@
 ﻿
 namespace NetShare.UI.UserControls
 {
-    partial class Options
+    partial class Settings
     {
         /// <summary> 
         /// Required designer variable.
@@ -64,7 +64,6 @@ namespace NetShare.UI.UserControls
             this.AutoMountOnStartUp.TabIndex = 2;
             this.AutoMountOnStartUp.Text = "automatically mount shares on startup";
             this.AutoMountOnStartUp.UseVisualStyleBackColor = true;
-            this.AutoMountOnStartUp.Visible = false;
             // 
             // OnStartupMinimizeToTray
             // 
@@ -76,7 +75,7 @@ namespace NetShare.UI.UserControls
             this.OnStartupMinimizeToTray.Text = "On startup minimize to tray icon (needs restart)";
             this.OnStartupMinimizeToTray.UseVisualStyleBackColor = true;
             // 
-            // Options
+            // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -84,7 +83,7 @@ namespace NetShare.UI.UserControls
             this.Controls.Add(this.AutoMountOnStartUp);
             this.Controls.Add(this.BtnClose);
             this.Controls.Add(this.BtnSave);
-            this.Name = "Options";
+            this.Name = "Settings";
             this.Size = new System.Drawing.Size(537, 127);
             this.Load += new System.EventHandler(this.Options_Load);
             this.ResumeLayout(false);
