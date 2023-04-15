@@ -18,9 +18,10 @@ namespace NetShare
         private About _userControlAbout;
         private AddShare _userControlAddShare;
         private Loading _userControlLoading;
-        private Options _userControlOptions;
+        private Settings _userControlOptions;
         private List<ShareItem> _shares = new List<ShareItem>();
         private Dialog _loadingWindow;
+        private bool _mainFormVisible;
 
         public Main()
         {
@@ -35,13 +36,28 @@ namespace NetShare
             Helper.ApplicationName = typeof(Program).Assembly.GetName().Name;
             PopulateListViewFromConfig();
 
-            //MountDrives();
-
-            if(Helper.ApplicationOptions.OnStartupMinimizeToTray)
+            if (Helper.ApplicationOptions.OnStartupMinimizeToTray)
             {
                 this.ShowInTaskbar = false;
                 Hide();
-            }            
+                _mainFormVisible = false;
+            }
+
+            var autoMountTimer = new System.Timers.Timer(TimeSpan.FromSeconds(30).TotalMilliseconds);
+            autoMountTimer.Elapsed += AutoMountTimer_Elapsed;
+
+            if (Helper.ApplicationOptions.AutoMountOnStartUp)
+                autoMountTimer.Start();
+        }
+
+        private void AutoMountTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            ((System.Timers.Timer)sender).Stop();
+
+            this.Invoke(new MethodInvoker(delegate ()
+            {
+                MountDrives();
+            }));
         }
 
         #region Setup At Startup
@@ -70,7 +86,7 @@ namespace NetShare
             _userControlAbout = new About();
             _userControlAddShare = new AddShare();
             _userControlLoading = new Loading();
-            _userControlOptions = new Options();
+            _userControlOptions = new Settings();
         }
 
         private void PopulateListViewFromConfig()
@@ -151,7 +167,18 @@ namespace NetShare
             var selectedItem = listViewShares.SelectedItems[0];
             var shareItem = (ShareItem)selectedItem.Tag;
 
-            MountDrive(shareItem, selectedItem);
+            var container = new Container();
+
+            if (!Helper.GetUnusedDriveLetters.Any(x => x == shareItem.DriveLetter))
+                return;
+
+            container.ShareItem = shareItem;
+            container.Item = selectedItem;
+            container.Item.UpdateListViewItem(TableColumns.Status, "Trying to mount drive...");
+
+            OpenLoadingWindow();
+
+            MountDrive(new List<Container>() { container });
         }
 
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -178,9 +205,14 @@ namespace NetShare
         {
             if (WindowState == FormWindowState.Minimized)
                 WindowState = FormWindowState.Normal;
-            
+
+            _mainFormVisible = true;
+            this.ShowInTaskbar = true;
             Show();
             this.Activate();
+
+            if (backgroundWorker1.IsBusy)
+                OpenLoadingWindow();
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
@@ -200,10 +232,25 @@ namespace NetShare
         private void MountDrives()
         {
             SetEnableOrDisableControls();
+            List<Container> containers = new List<Container>();
             foreach (ListViewItem item in listViewShares.Items)
             {
-                MountDrive((ShareItem)item.Tag, item);
+                var container = new Container();
+                var shareItem = (ShareItem)item.Tag;
+
+                if (!Helper.GetUnusedDriveLetters.Any(x => x == shareItem.DriveLetter))
+                    continue;
+
+                container.ShareItem = shareItem;
+                container.Item = item;
+                container.Item.UpdateListViewItem(TableColumns.Status, "Trying to mount drive...");
+
+                containers.Add(container);
             }
+
+            OpenLoadingWindow();
+
+            MountDrive(containers);
         }
 
         private void AddRow(ShareItem entity)
@@ -243,56 +290,70 @@ namespace NetShare
             }
         }
 
-        private void MountDrive(ShareItem shareItem, ListViewItem listViewItem)
+        private void MountDrive(List<Container> containers)
         {
+            backgroundWorker1.RunWorkerAsync(containers);
+        }
+
+        private void OpenLoadingWindow()
+        {
+            if (_mainFormVisible == false)
+                return;
+
+            if (_loadingWindow != null) 
+                return;
+
             _loadingWindow = new Dialog();
             _loadingWindow.ControlBox = false;
-            
+
             _loadingWindow.Controls.Clear();
             _loadingWindow.Controls.Add(_userControlLoading);
             _loadingWindow.Show(this);
+        }
 
-            string statusMessage = string.Empty;
-
-            var container = new Container();
-            container.ShareItem = shareItem;
-            container.Item = listViewItem;
-            container.Item.UpdateListViewItem(TableColumns.Status, "Trying to mount drive...");
-
-            if (!Helper.GetUnusedDriveLetters.Any(x => x == shareItem.DriveLetter))
+        private void CloseLoadingWindow()
+        {
+            if (_loadingWindow == null)
                 return;
 
-            backgroundWorker1.RunWorkerAsync(container);
+            _loadingWindow.Controls.Clear();
+            _loadingWindow.Close();
+            _loadingWindow.Dispose();
+            _loadingWindow = null;
         }
 
         #region BackgroundWorker
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            var container = (Container)e.Argument;
-            var shareItem = container.ShareItem;
+            var containers = (List<Container>)e.Argument;
+            foreach (var item in containers)
+            {
+                var shareItem = item.ShareItem;
+                item.Status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, AESGCM.SimpleDecrypt(shareItem.Password, Helper.Key));
+            }
 
-            container.Status = Utility.NetworkDrive.MapNetworkDrive($@"\\{shareItem.Server}\{shareItem.Catalog}", shareItem.DriveLetter, shareItem.UserName, AESGCM.SimpleDecrypt(shareItem.Password, Helper.Key));
-
-           e.Result = container;
+            e.Result = containers;
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            _loadingWindow.Controls.Clear();
-            _loadingWindow.Close();
-            _loadingWindow.Dispose();
+            CloseLoadingWindow();
 
-            var container = (Container)e.Result;
+            var containers = (List<Container>)e.Result;
 
-            container.ShareItem.Status = MountStatus.mapped;
-            container.Item.UpdateListViewItem(TableColumns.Status, "Mount successfully");
+            foreach (var container in containers)
+            {
+                container.ShareItem.Status = MountStatus.mapped;
+                container.Item.UpdateListViewItem(TableColumns.Status, "Mount successfully");
 
-            if (container.Status == 0) return;
+                if (container.Status == 0)
+                    continue;
 
-            var statusMessage = new System.ComponentModel.Win32Exception(container.Status).Message;
-            container.ShareItem.Status = MountStatus.notMapped;
-            container.Item.UpdateListViewItem(TableColumns.Status, statusMessage);
+                var statusMessage = new System.ComponentModel.Win32Exception(container.Status).Message;
+                container.ShareItem.Status = MountStatus.notMapped;
+                container.Item.UpdateListViewItem(TableColumns.Status, statusMessage);
+            }
 
             SetEnableOrDisableControls();
         }
@@ -318,20 +379,16 @@ namespace NetShare
             var settingsHandler = new SettingFileHandler();
             Helper.ApplicationOptions = settingsHandler.Load();
         }
-    }
 
-    public enum TableColumns
-    {
-        Drive,
-        Server,
-        Catalog,
-        Status
-    }
-
-    public class Container
-    {
-        public ShareItem ShareItem { get; set; }
-        public ListViewItem Item { get; set; }
-        public int Status { get; set; }
+        private void Main_Resize(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Minimized)
+            {
+                WindowState = FormWindowState.Normal;
+                _mainFormVisible = false;
+                CloseLoadingWindow();
+                Hide();
+            }
+        }
     }
 }
