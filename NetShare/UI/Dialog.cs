@@ -51,6 +51,7 @@ namespace NetShare.UI
             this.Controls.Add(userControl);
             this.ShowDialog();
             this.Controls.Clear();
+            userControl.ShareItemEdit = null;
 
             return (ShareItem)ResultObject;
         }
