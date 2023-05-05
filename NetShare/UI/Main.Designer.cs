@@ -51,9 +51,18 @@ namespace NetShare
             this.trayIconMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.flowLayoutMenu = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnAdd = new System.Windows.Forms.Button();
+            this.btnEdit = new System.Windows.Forms.Button();
+            this.btnRemove = new System.Windows.Forms.Button();
+            this.topPanel = new System.Windows.Forms.Panel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.menuStrip.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
             this.trayIconMenu.SuspendLayout();
+            this.flowLayoutMenu.SuspendLayout();
+            this.topPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -117,13 +126,14 @@ namespace NetShare
             // viewHelpToolStripMenuItem
             // 
             this.viewHelpToolStripMenuItem.Name = "viewHelpToolStripMenuItem";
-            this.viewHelpToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+            this.viewHelpToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.viewHelpToolStripMenuItem.Text = "View Help";
+            this.viewHelpToolStripMenuItem.Click += new System.EventHandler(this.viewHelpToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -133,9 +143,9 @@ namespace NetShare
             this.listViewShares.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewShares.FullRowSelect = true;
             this.listViewShares.HideSelection = false;
-            this.listViewShares.Location = new System.Drawing.Point(0, 24);
+            this.listViewShares.Location = new System.Drawing.Point(0, 144);
             this.listViewShares.Name = "listViewShares";
-            this.listViewShares.Size = new System.Drawing.Size(800, 426);
+            this.listViewShares.Size = new System.Drawing.Size(800, 306);
             this.listViewShares.TabIndex = 1;
             this.listViewShares.UseCompatibleStateImageBehavior = false;
             // 
@@ -210,12 +220,75 @@ namespace NetShare
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
+            // flowLayoutMenu
+            // 
+            this.flowLayoutMenu.Controls.Add(this.btnAdd);
+            this.flowLayoutMenu.Controls.Add(this.btnEdit);
+            this.flowLayoutMenu.Controls.Add(this.btnRemove);
+            this.flowLayoutMenu.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowLayoutMenu.Location = new System.Drawing.Point(0, 85);
+            this.flowLayoutMenu.Name = "flowLayoutMenu";
+            this.flowLayoutMenu.Size = new System.Drawing.Size(800, 59);
+            this.flowLayoutMenu.TabIndex = 3;
+            // 
+            // btnAdd
+            // 
+            this.btnAdd.Location = new System.Drawing.Point(3, 3);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(109, 52);
+            this.btnAdd.TabIndex = 0;
+            this.btnAdd.Text = "button1";
+            this.btnAdd.UseVisualStyleBackColor = true;
+            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            // 
+            // btnEdit
+            // 
+            this.btnEdit.Location = new System.Drawing.Point(118, 3);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(109, 52);
+            this.btnEdit.TabIndex = 1;
+            this.btnEdit.Text = "button2";
+            this.btnEdit.UseVisualStyleBackColor = true;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
+            // 
+            // btnRemove
+            // 
+            this.btnRemove.Location = new System.Drawing.Point(233, 3);
+            this.btnRemove.Name = "btnRemove";
+            this.btnRemove.Size = new System.Drawing.Size(109, 52);
+            this.btnRemove.TabIndex = 2;
+            this.btnRemove.Text = "button3";
+            this.btnRemove.UseVisualStyleBackColor = true;
+            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
+            // 
+            // topPanel
+            // 
+            this.topPanel.Controls.Add(this.pictureBox1);
+            this.topPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.topPanel.Location = new System.Drawing.Point(0, 24);
+            this.topPanel.Name = "topPanel";
+            this.topPanel.Size = new System.Drawing.Size(800, 61);
+            this.topPanel.TabIndex = 2;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(234)))), ((int)(((byte)(254)))));
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox1.Image = global::NetShare.Properties.Resources.logo3;
+            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(800, 61);
+            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabStop = false;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.listViewShares);
+            this.Controls.Add(this.flowLayoutMenu);
+            this.Controls.Add(this.topPanel);
             this.Controls.Add(this.menuStrip);
             this.MainMenuStrip = this.menuStrip;
             this.Name = "Main";
@@ -227,6 +300,9 @@ namespace NetShare
             this.menuStrip.PerformLayout();
             this.contextMenuStrip.ResumeLayout(false);
             this.trayIconMenu.ResumeLayout(false);
+            this.flowLayoutMenu.ResumeLayout(false);
+            this.topPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -254,6 +330,12 @@ namespace NetShare
         private System.Windows.Forms.ContextMenuStrip trayIconMenu;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutMenu;
+        private System.Windows.Forms.Button btnAdd;
+        private System.Windows.Forms.Button btnEdit;
+        private System.Windows.Forms.Button btnRemove;
+        private System.Windows.Forms.Panel topPanel;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 
