@@ -48,6 +48,20 @@ namespace NetShare
 
             if (Helper.ApplicationOptions.AutoMountOnStartUp)
                 autoMountTimer.Start();
+
+            InitializeTopMenu();
+        }
+
+        private void InitializeTopMenu()
+        {
+            FontAwesomeHelper fontAwesomeHelper = new FontAwesomeHelper();
+
+            btnAdd.Font = fontAwesomeHelper.GetFont();
+            btnEdit.Font = fontAwesomeHelper.GetFont();
+            btnRemove.Font = fontAwesomeHelper.GetFont();
+            btnAdd.Text = $"{fontAwesomeHelper.LoadIcon("fa-plus-square")} Add";
+            btnEdit.Text = $"{fontAwesomeHelper.LoadIcon("fa-edit")} Edit";
+            btnRemove.Text = $"{fontAwesomeHelper.LoadIcon("fa-minus-square")} Remove";
         }
 
         private void AutoMountTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -389,6 +403,38 @@ namespace NetShare
                 CloseLoadingWindow();
                 Hide();
             }
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            OpenDialogAddShare(null);
+            SaveListViewToConfig();
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            if (listViewShares.SelectedItems.Count == 0)
+                return;
+
+            var selectedItem = listViewShares.SelectedItems[0];
+            if (!OpenDialogAddShare((ShareItem)selectedItem.Tag))
+                return;
+            listViewShares.Items.Remove(selectedItem);
+            SaveListViewToConfig();
+        }
+        private void btnRemove_Click(object sender, EventArgs e)
+        {
+            if (listViewShares.SelectedItems.Count == 0)
+                return;
+
+            var selectedItem = listViewShares.SelectedItems[0];
+            listViewShares.Items.Remove(selectedItem);
+
+            SaveListViewToConfig();
+        }
+        private void viewHelpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("This button is useless, just like Microsoft windows troubleshooter.");
         }
     }
 }

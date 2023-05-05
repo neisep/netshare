@@ -20,6 +20,7 @@ namespace NetShare.UI.UserControls
             richTextBoxAbout.Text += $"Developer: Jimmie Jönsson {Environment.NewLine}";
             richTextBoxAbout.Text += $"@Github: https://www.github.com/neisep {Environment.NewLine}";
             richTextBoxAbout.Text += $"Repo: https://www.github.com/ {Environment.NewLine}";
+            richTextBoxAbout.Text += $"This project uses fontAwesome 4: https://fontawesome.com/v4/ {Environment.NewLine}";
             richTextBoxAbout.Text += "Thanks too: Axel Kemper for source for how to mount a drive";
         }
 
