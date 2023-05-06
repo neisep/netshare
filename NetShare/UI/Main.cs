@@ -127,7 +127,7 @@ namespace NetShare
 
         #endregion
 
-        #region GUI Events
+        #region ToolStripMenu GUI Events
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -152,6 +152,7 @@ namespace NetShare
             if (!OpenDialogAddShare((ShareItem)selectedItem.Tag))
                 return;
             listViewShares.Items.Remove(selectedItem);
+            _shares.Remove((ShareItem)selectedItem.Tag);
             SaveListViewToConfig();
         }
 
@@ -162,6 +163,7 @@ namespace NetShare
 
             var selectedItem = listViewShares.SelectedItems[0];
             listViewShares.Items.Remove(selectedItem);
+            _shares.Remove((ShareItem)selectedItem.Tag);
 
             SaveListViewToConfig();
         }
@@ -208,13 +210,17 @@ namespace NetShare
             }
         }
 
-        //TrayIconMenu
+        private void viewHelpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("This button is useless, just like Microsoft windows troubleshooter.");
+        }
+
+        #region TrayIconMenu
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
         }
 
-        //TrayIconMenu
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (WindowState == FormWindowState.Minimized)
@@ -228,6 +234,7 @@ namespace NetShare
             if (backgroundWorker1.IsBusy)
                 OpenLoadingWindow();
         }
+        #endregion
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -295,7 +302,7 @@ namespace NetShare
         {
             using (var dialogWindow = new Dialog())
             {
-                var shareItem = dialogWindow.OpenAddShare(editShareItem, _userControlAddShare, _shares.Select(x => x.DriveLetter.ToLower()).ToList());
+                var shareItem = dialogWindow.OpenAddShare(editShareItem, _userControlAddShare, _shares.Where(x => x.DriveLetter != editShareItem?.DriveLetter).Select(x => x.DriveLetter.ToLower()).ToList());
                 if (shareItem == null)
                     return false; 
                
@@ -309,6 +316,7 @@ namespace NetShare
             backgroundWorker1.RunWorkerAsync(containers);
         }
 
+        #region LoadingWindow
         private void OpenLoadingWindow()
         {
             if (_mainFormVisible == false)
@@ -335,6 +343,7 @@ namespace NetShare
             _loadingWindow.Dispose();
             _loadingWindow = null;
         }
+        #endregion
 
         #region BackgroundWorker
 
@@ -405,6 +414,7 @@ namespace NetShare
             }
         }
 
+        #region TopMenu
         private void btnAdd_Click(object sender, EventArgs e)
         {
             OpenDialogAddShare(null);
@@ -420,6 +430,7 @@ namespace NetShare
             if (!OpenDialogAddShare((ShareItem)selectedItem.Tag))
                 return;
             listViewShares.Items.Remove(selectedItem);
+            _shares.Remove((ShareItem)selectedItem.Tag);
             SaveListViewToConfig();
         }
         private void btnRemove_Click(object sender, EventArgs e)
@@ -429,12 +440,10 @@ namespace NetShare
 
             var selectedItem = listViewShares.SelectedItems[0];
             listViewShares.Items.Remove(selectedItem);
+            _shares.Remove((ShareItem)selectedItem.Tag);
 
             SaveListViewToConfig();
         }
-        private void viewHelpToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("This button is useless, just like Microsoft windows troubleshooter.");
-        }
+        #endregion
     }
 }
