@@ -19,6 +19,9 @@ namespace NetShare.UI.UserControls
 
         private void AddShare_Load(object sender, EventArgs e)
         {
+            FontAwesomeHelper fontAwesomeHelper = new FontAwesomeHelper();
+
+            cboDriveLetter.Items.Clear();
             foreach (var item in Helper.GetUnusedDriveLetters)
             {
                 if (ExcludedDriveLetters.Contains(item.ToLower()))
@@ -30,6 +33,11 @@ namespace NetShare.UI.UserControls
             cboDriveLetter.SelectedIndex = cboDriveLetter.Items.Count - 1;
             
             LoadExisting();
+
+            btnSave.Font = fontAwesomeHelper.GetFont(10);
+            btnSave.Text = $"{fontAwesomeHelper.LoadIcon("fa-floppy-o")} Save";
+            btnCancel.Font = fontAwesomeHelper.GetFont(10);
+            btnCancel.Text = $"{fontAwesomeHelper.LoadIcon("fa-ban")} Cancel"; ;
         }
 
         private void LoadExisting()
@@ -45,7 +53,10 @@ namespace NetShare.UI.UserControls
 
             txtServer.Text = ShareItemEdit.Server;
             txtUsername.Text = ShareItemEdit.UserName;
-            txtPassword.Text = AESGCM.SimpleDecrypt(ShareItemEdit.Password, Helper.Key);
+
+            if(!string.IsNullOrEmpty(ShareItemEdit.Password))
+                txtPassword.Text = AESGCM.SimpleDecrypt(ShareItemEdit.Password, Helper.Key);
+
             txtCatalog.Text = ShareItemEdit.Catalog;
             var index = cboDriveLetter.FindString(ShareItemEdit.DriveLetter);
             cboDriveLetter.SelectedIndex = index;
@@ -65,9 +76,11 @@ namespace NetShare.UI.UserControls
                 DriveLetter = cboDriveLetter.Text,
                 Server = txtServer.Text,
                 Catalog = txtCatalog.Text,
-                UserName = txtUsername.Text,
-                Password = AESGCM.SimpleEncrypt(txtPassword.Text, Helper.Key)
+                UserName = txtUsername.Text
             };
+            if (!string.IsNullOrEmpty(txtPassword.Text))
+                item.Password = AESGCM.SimpleEncrypt(txtPassword.Text, Helper.Key);
+
             CallerForm.ResultObject = item;
 
             CallerForm.Close();

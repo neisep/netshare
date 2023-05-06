@@ -19,12 +19,12 @@ namespace Infrastracture
             }
         }
 
-        public System.Drawing.Font GetFont()
+        public System.Drawing.Font GetFont(int size = 16)
         {
             //Fallback if we fail to load font
             if (_fonts.Families.Length == 0) return System.Drawing.SystemFonts.DefaultFont;
 
-            return new System.Drawing.Font(_fonts.Families[0], 16, System.Drawing.FontStyle.Regular);
+            return new System.Drawing.Font(_fonts.Families[0], size, System.Drawing.FontStyle.Regular);
         }
 
         public string LoadIcon(string input)
