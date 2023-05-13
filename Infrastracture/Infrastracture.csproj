@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BindingListEx.cs" />
     <Compile Include="Encryption.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="KeyFile.cs" />

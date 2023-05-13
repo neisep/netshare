@@ -20,11 +20,10 @@ namespace NetShare
         private AddShare _userControlAddShare;
         private Loading _userControlLoading;
         private Settings _userControlOptions;
-        private List<ShareItem> _shares = new List<ShareItem>();
         private Dialog _loadingWindow;
         private bool _mainFormVisible;
 
-        private BindingList<ShareItem> _shares2;
+        private BindingListEx<ShareItem> _shares;
 
         public Main()
         {
@@ -58,12 +57,19 @@ namespace NetShare
 
         private void InitializeBindingList()
         {
-            _shares2 = new BindingList<ShareItem>();
-            _shares2.ListChanged += _shares2_ListChanged;
+            _shares = new BindingListEx<ShareItem>();
+            _shares.ListChanged += _shares_ListChanged;
+            _shares.ItemDeleted += _shares_ItemDeleted;
         }
 
-        private void _shares2_ListChanged(object sender, ListChangedEventArgs e)
+        private void _shares_ItemDeleted(ShareItem deletedItem)
         {
+            listViewShares.Items.RemoveByKey(deletedItem.ListViewItemKey.ToString());
+        }
+
+        private void _shares_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            listViewShares.Items.Clear();
             foreach (var entity in (BindingList<ShareItem>)sender)
             {
                 switch (e.ListChangedType)
@@ -71,12 +77,7 @@ namespace NetShare
                     case ListChangedType.Reset:
                         break;
                     case ListChangedType.ItemAdded:
-                        ListViewItem item = new ListViewItem(new[] { entity.DriveLetter, entity.Server, entity.Catalog, "" });
-                        item.Tag = entity;
-                        listViewShares.Items.Add(item);
-                        break;
-                    case ListChangedType.ItemDeleted:
-                        listViewShares.Items.Remove(listViewShares.SelectedItems[0]);
+                        listViewShares.Items.Add(entity.ToListView());
                         break;
                     case ListChangedType.ItemMoved:
                         break;
@@ -159,12 +160,7 @@ namespace NetShare
 
             foreach (var item in jsonData.ShareItems)
             {
-                ListViewItem listViewItem = new ListViewItem(new[] { item.DriveLetter, item.Server, item.Catalog, item.Status.ToString() });
-                listViewItem.Tag = item;
-
-                //listViewShares.Items.Add(listViewItem);
-                //_shares.Add(item);
-                _shares2.Add(item);
+                _shares.Add(item);
             }
         }
 
@@ -194,9 +190,7 @@ namespace NetShare
             var selectedItem = listViewShares.SelectedItems[0];
             if (!OpenDialogAddShare((ShareItem)selectedItem.Tag))
                 return;
-            listViewShares.Items.Remove(selectedItem);
             _shares.Remove((ShareItem)selectedItem.Tag);
-            _shares2.Remove((ShareItem)selectedItem.Tag);
             SaveListViewToConfig();
         }
 
@@ -206,9 +200,7 @@ namespace NetShare
                 return;
 
             var selectedItem = listViewShares.SelectedItems[0];
-            listViewShares.Items.Remove(selectedItem);
             _shares.Remove((ShareItem)selectedItem.Tag);
-            _shares2.Remove((ShareItem)selectedItem.Tag);
 
             SaveListViewToConfig();
         }
@@ -322,7 +314,6 @@ namespace NetShare
         private void AddRow(ShareItem entity)
         {
             _shares.Add(entity);
-            _shares2.Add(entity);
         }
 
         private void SaveListViewToConfig()
@@ -471,9 +462,8 @@ namespace NetShare
             var selectedItem = listViewShares.SelectedItems[0];
             if (!OpenDialogAddShare((ShareItem)selectedItem.Tag))
                 return;
-            listViewShares.Items.Remove(selectedItem);
+
             _shares.Remove((ShareItem)selectedItem.Tag);
-            _shares2.Remove((ShareItem)selectedItem.Tag);
             SaveListViewToConfig();
         }
         private void btnRemove_Click(object sender, EventArgs e)
@@ -482,9 +472,7 @@ namespace NetShare
                 return;
 
             var selectedItem = listViewShares.SelectedItems[0];
-            listViewShares.Items.Remove(selectedItem);
             _shares.Remove((ShareItem)selectedItem.Tag);
-            _shares2.Remove((ShareItem)selectedItem.Tag);
 
             SaveListViewToConfig();
         }

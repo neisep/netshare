@@ -72,6 +72,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Extensions\ShareItemExtension.cs" />
     <Compile Include="UI\TableColumnEnums.cs" />
     <Compile Include="UI\UserControls\About.cs">
       <SubType>UserControl</SubType>

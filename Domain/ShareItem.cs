@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace Domain
 {
@@ -10,21 +12,13 @@ namespace Domain
         public string UserName { get; set; }
         public string Password { get; set; }
         public MountStatus Status { get; set; }
+
+        public Guid ListViewItemKey { get; set; }
     }
 
     public enum MountStatus
     {
         notMapped,
         mapped,
-    }
-
-    public class Shares
-    {
-        public Shares()
-        {
-            ShareItems = new List<ShareItem>();
-        }
-
-        public List<ShareItem> ShareItems { get; set; }
     }
 }
