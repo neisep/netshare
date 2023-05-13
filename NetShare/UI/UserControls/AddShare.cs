@@ -76,7 +76,8 @@ namespace NetShare.UI.UserControls
                 DriveLetter = cboDriveLetter.Text,
                 Server = txtServer.Text,
                 Catalog = txtCatalog.Text,
-                UserName = txtUsername.Text
+                UserName = txtUsername.Text,
+                ListViewItemKey = Guid.NewGuid()
             };
             if (!string.IsNullOrEmpty(txtPassword.Text))
                 item.Password = AESGCM.SimpleEncrypt(txtPassword.Text, Helper.Key);
