@@ -3,6 +3,7 @@ using Domain;
 using Infrastracture;
 using Infrastracture.Encryption;
 using NetShare.UI;
+using NetShare.UI.Sorter;
 using NetShare.UI.UserControls;
 using Newtonsoft.Json;
 using System;
@@ -24,6 +25,7 @@ namespace NetShare
         private bool _mainFormVisible;
 
         private BindingListEx<ShareItem> _shares;
+        private ListViewColumnSorter _listviewcolumnSorter;
 
         public Main()
         {
@@ -54,7 +56,6 @@ namespace NetShare
 
             InitializeTopMenu();
         }
-
         private void InitializeBindingList()
         {
             _shares = new BindingListEx<ShareItem>();
@@ -127,6 +128,9 @@ namespace NetShare
         private void SetupListView()
         {
             listViewShares.View = View.Details;
+            _listviewcolumnSorter = new ListViewColumnSorter();
+            listViewShares.ListViewItemSorter = _listviewcolumnSorter;
+
             AddListViewColumns();
         }
 
@@ -476,8 +480,40 @@ namespace NetShare
 
             SaveListViewToConfig();
         }
+
         #endregion
 
+        /// <summary>
+        /// Event that sorts the column in a listView
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void listViewShares_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            // Determine if clicked column is already the column that is being sorted.
+            if (e.Column == _listviewcolumnSorter.SortColumn)
+            {
+                // Reverse the current sort direction for this column.
+                if (_listviewcolumnSorter.Order == SortOrder.Ascending)
+                {
+                    _listviewcolumnSorter.Order = SortOrder.Descending;
+                }
+                else
+                {
+                    _listviewcolumnSorter.Order = SortOrder.Ascending;
+                }
+            }
+            else
+            {
+                // Set the column number that is to be sorted; default to ascending.
+                _listviewcolumnSorter.SortColumn = e.Column;
+                _listviewcolumnSorter.Order = SortOrder.Ascending;
+            }
 
+            // Perform the sort with these new sort options.
+            listViewShares.Sort();
+
+            SaveListViewToConfig();
+        }
     }
 }
