@@ -70,7 +70,9 @@ namespace NetShare
 
         private void _shares_ListChanged(object sender, ListChangedEventArgs e)
         {
-            listViewShares.Items.Clear();
+            if(e.ListChangedType != ListChangedType.ItemDeleted)
+                listViewShares.Items.Clear();
+
             foreach (var entity in (BindingList<ShareItem>)sender)
             {
                 switch (e.ListChangedType)
@@ -89,6 +91,8 @@ namespace NetShare
                     case ListChangedType.PropertyDescriptorDeleted:
                         break;
                     case ListChangedType.PropertyDescriptorChanged:
+                        break;
+                    case ListChangedType.ItemDeleted:
                         break;
                     default:
                         break;
