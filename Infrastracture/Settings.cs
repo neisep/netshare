@@ -8,13 +8,56 @@ namespace Infrastracture
     {
         public void Save(SettingsItem jsonObject)
         {
-            File.WriteAllText(Helper.OptionsWithPathAndFileName, JsonConvert.SerializeObject(jsonObject));
+            try
+            {
+                File.WriteAllText(Helper.OptionsWithPathAndFileName, JsonConvert.SerializeObject(jsonObject));
+            }
+            catch (System.Exception)
+            {
+                //Ignore error for now!
+            }
         }
 
         public SettingsItem Load()
         {
-            var jsonObject = File.ReadAllText(Helper.OptionsWithPathAndFileName);
-            return JsonConvert.DeserializeObject<SettingsItem>(jsonObject);
+            CheckIfOptionsDirectoryExists();
+            SettingsItem settingsItem = null;
+            try
+            {
+                var jsonObject = File.ReadAllText(Helper.OptionsWithPathAndFileName);
+                settingsItem = JsonConvert.DeserializeObject<SettingsItem>(jsonObject);
+
+            }
+            catch (IOException ex) when (ex is FileLoadException ||
+                                         ex is FileNotFoundException)
+            {
+                //Create Object and return new object!
+                settingsItem = CreateDefaultSettingsItem();
+                Save(settingsItem);
+            }
+
+            return settingsItem;
+        }
+
+        private void CheckIfOptionsDirectoryExists()
+        {
+            if(!Directory.Exists(Helper.AppConfigPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(Helper.AppConfigPath);
+                }
+                catch (System.Exception) {}
+            }
+        }
+
+        private SettingsItem CreateDefaultSettingsItem()
+        {
+            return new SettingsItem
+            {
+                AutoMountOnStartUp = false,
+                OnStartupMinimizeToTray = false,
+            };
         }
     }
 }
