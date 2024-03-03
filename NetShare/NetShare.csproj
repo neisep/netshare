@@ -8,10 +8,11 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>NetShare</RootNamespace>
     <AssemblyName>NetShare</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -140,6 +141,10 @@
     <ProjectReference Include="..\Domain\Domain.csproj">
       <Project>{8F4CCD0B-F5A4-400C-AAFA-6E976EEC13DD}</Project>
       <Name>Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FontAwesome\FontAwesome.csproj">
+      <Project>{83b4fe88-1621-4583-b320-05be8f38c7c4}</Project>
+      <Name>FontAwesome</Name>
     </ProjectReference>
     <ProjectReference Include="..\Infrastracture\Infrastracture.csproj">
       <Project>{56DB0554-FF1D-450B-90DC-75B74721113C}</Project>

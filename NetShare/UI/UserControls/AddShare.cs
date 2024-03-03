@@ -1,4 +1,5 @@
 ﻿using Domain;
+using FontAwesome;
 using Infrastracture;
 using Infrastracture.Encryption;
 using System;
