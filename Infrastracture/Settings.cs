@@ -20,7 +20,6 @@ namespace Infrastracture
 
         public SettingsItem Load()
         {
-            CheckIfOptionsDirectoryExists();
             SettingsItem settingsItem = null;
             try
             {
@@ -39,7 +38,7 @@ namespace Infrastracture
             return settingsItem;
         }
 
-        private void CheckIfOptionsDirectoryExists()
+        public static void CheckIfOptionsDirectoryExists()
         {
             if(!Directory.Exists(Helper.AppConfigPath))
             {
