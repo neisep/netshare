@@ -1,5 +1,6 @@
 ﻿//Source is still under going development and is abit messy right now.
 using Domain;
+using FontAwesome;
 using Infrastracture;
 using Infrastracture.Encryption;
 using NetShare.UI;
